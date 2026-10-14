@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Cinzel", serif;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-mono: "Space Mono", monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #06070a;
+  color: #edf0f5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-serif);
+  letter-spacing: 0.04em;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(10, 12, 18, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Subtle cinematic vignette and noise simulation */
+.cinematic-vignette {
+  background: radial-gradient(circle at 50% 30%, rgba(20, 24, 38, 0) 0%, rgba(6, 7, 10, 0.85) 85%);
+  pointer-events: none;
+}
+
+.aurora-glow {
+  background: radial-gradient(ellipse 60% 40% at 50% -10%, rgba(99, 102, 241, 0.12), rgba(168, 85, 247, 0.05), transparent 70%);
+}

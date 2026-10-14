@@ -1,0 +1,446 @@
+{
+  "users": {
+    "usr-david": {
+      "id": "usr-david",
+      "name": "David Bodunde",
+      "email": "pottersvilleoffice@gmail.com",
+      "handle": "@davidbodunde",
+      "avatarUrl": "",
+      "bio": "Creator of OTHERWISE AI & Pottersville School innovator. Exploring alternate creative timelines.",
+      "followersCount": 148,
+      "followingCount": 32,
+      "createdAt": "2026-09-07T04:16:57.918Z"
+    },
+    "usr-maya": {
+      "id": "usr-maya",
+      "name": "Maya Lin",
+      "email": "maya@otherwise.ai",
+      "handle": "@mayalin_art",
+      "avatarUrl": "",
+      "bio": "Generative AI visual artist & sound designer.",
+      "followersCount": 92,
+      "followingCount": 18,
+      "createdAt": "2026-09-23T04:16:57.919Z"
+    },
+    "usr-alex": {
+      "id": "usr-alex",
+      "name": "Alex Vance",
+      "email": "alex@otherwise.ai",
+      "handle": "@vance_code",
+      "avatarUrl": "",
+      "bio": "Full-stack AI developer building neural audio algorithms.",
+      "followersCount": 215,
+      "followingCount": 45,
+      "createdAt": "2026-09-30T04:16:57.919Z"
+    }
+  },
+  "history": [
+    {
+      "id": "hist_1792005460147",
+      "userId": "usr-guest",
+      "requestId": "req_chat_1792005457249_dhidi",
+      "capability": "chat",
+      "prompt": "Write a 2-line inspirational motto for OTHERWISE creators.",
+      "status": "completed",
+      "createdAt": "2026-10-14T19:17:40.147Z",
+      "resultText": "Step beyond the predictable, \nand build the world you wish was here.",
+      "mediaType": "text",
+      "aiToolName": "gemini-3.5-flash-lite"
+    },
+    {
+      "id": "hist_1791727359366",
+      "userId": "usr-guest",
+      "requestId": "req_code_1791727210090_7smgo",
+      "capability": "code",
+      "prompt": "Write a typescript debounce function",
+      "status": "completed",
+      "createdAt": "2026-10-11T14:02:39.366Z",
+      "resultText": "Here is a production-grade, type-safe `debounce` implementation in TypeScript. It preserves parameter types, handles execution contexts (`this`), and includes utilities to `cancel`, `flush`, and inspect `pending` state.\n\n### Implementation\n\n```typescript\nexport interface DebouncedFunction<T extends (...args: any[]) => any> {\n  /**\n   * Invokes the debounced function.\n   */\n  (this: ThisParameterType<T>, ...args: Parameters<T>): void;\n\n  /**\n   * Cancels any pending delayed invocation.\n   */\n  cancel: () => void;\n\n  /**\n   * Immediately invokes the pending execution, if any exists.\n   */\n  flush: () => void;\n\n  /**\n   * Returns true if there is a pending delayed invocation.\n   */\n  pending: () => boolean;\n}\n\nexport interface DebounceOptions {\n  /**\n   * If true, triggers the function on the leading edge instead of the trailing edge.\n   * Default: false\n   */\n  leading?: boolean;\n}\n\n/**\n * Creates a debounced function that delays invoking `fn` until after `delayMs`\n * milliseconds have elapsed since the last time the debounced function was invoked.\n *\n * @param fn - The function to debounce.\n * @param delayMs - The number of milliseconds to delay.\n * @param options - Configuration options (e.g. leading execution).\n * @returns A debounced wrapper with `cancel`, `flush`, and `pending` controls.\n */\nexport function debounce<T extends (...args: any[]) => any>(\n  fn: T,\n  delayMs: number,\n  options: DebounceOptions = {}\n): DebouncedFunction<T> {\n  let timeoutId: ReturnType<typeof setTimeout> | undefined;\n  let lastArgs: Parameters<T> | undefined;\n  let lastThis: ThisParameterType<T> | undefined;\n  const { leading = false } = options;\n\n  const invoke = () => {\n    if (lastArgs) {\n      const args = lastArgs;\n      const context = lastThis;\n      lastArgs = undefined;\n      lastThis = undefined;\n      fn.apply(context, args);\n    }\n  };\n\n  const cancel = () => {\n    if (timeoutId !== undefined) {\n      clearTimeout(timeoutId);\n      timeoutId = undefined;\n    }\n    lastArgs = undefined;\n    lastThis = undefined;\n  };\n\n  const flush = () => {\n    if (timeoutId !== undefined) {\n      clearTimeout(timeoutId);\n      timeoutId = undefined;\n      invoke();\n    }\n  };\n\n  const pending = () => timeoutId !== undefined;\n\n  const debounced = function (this: ThisParameterType<T>, ...args: Parameters<T>) {\n    lastArgs = args;\n    lastThis = this;\n\n    const isLeadingCall = leading && timeoutId === undefined;\n\n    if (timeoutId !== undefined) {\n      clearTimeout(timeoutId);\n    }\n\n    timeoutId = setTimeout(() => {\n      timeoutId = undefined;\n      if (!leading) {\n        invoke();\n      }\n    }, delayMs);\n\n    if (isLeadingCall) {\n      invoke();\n    }\n  };\n\n  debounced.cancel = cancel;\n  debounced.flush = flush;\n  debounced.pending = pending;\n\n  return debounced;\n}\n```\n\n---\n\n### Usage Examples\n\n#### 1. Standard TypeScript / DOM Usage\n\n```typescript\nfunction handleSearch(query: string, page: number): void {\n  console.log(`Searching for \"${query}\" on page ${page}...`);\n}\n\n// Full type safety: Argument types and count are strictly checked\nconst debouncedSearch = debounce(handleSearch, 300);\n\ndebouncedSearch(\"react\", 1); // Valid\n// debouncedSearch(123, 1);  // Error: Argument of type 'number' is not assignable to 'string'\n\n// Programmatic control:\nif (debouncedSearch.pending()) {\n  debouncedSearch.flush();  // Executes immediately\n  // or debouncedSearch.cancel(); // Aborts execution\n}\n```\n\n#### 2. React Hook Usage (`useDebouncedCallback`)\n\nIf using React, ensure the debounced instance persists across re-renders and auto-cleans on unmount:\n\n```tsx\nimport { useEffect, useMemo, useRef } from \"react\";\n\nexport function useDebouncedCallback<T extends (...args: any[]) => any>(\n  callback: T,\n  delayMs: number,\n  options?: DebounceOptions\n): DebouncedFunction<T> {\n  const callbackRef = useRef(callback);\n  callbackRef.current = callback;\n\n  const debounced = useMemo(() => {\n    return debounce(\n      ((...args: Parameters<T>) => {\n        return callbackRef.current(...args);\n      }) as T,\n      delayMs,\n      options\n    );\n  }, [delayMs, options?.leading]);\n\n  useEffect(() => {\n    return () => {\n      debounced.cancel(); // Prevent memory leaks and state updates on unmounted components\n    };\n  }, [debounced]);\n\n  return debounced;\n}\n```",
+      "mediaType": "code",
+      "aiToolName": "Gemini Code Architect"
+    },
+    {
+      "id": "hist_1791727262856",
+      "userId": "usr-guest",
+      "requestId": "req_code_1791727243791_avmc4",
+      "capability": "code",
+      "prompt": "Write a typescript debounce function",
+      "status": "completed",
+      "createdAt": "2026-10-11T14:01:02.856Z",
+      "resultText": "Here is a production-ready, type-safe `debounce` implementation in TypeScript. It supports execution context (`this`), dynamic arguments, a `cancel()` method, and an optional `flush()` method.\n\n### Implementation\n\n```typescript\n/**\n * Options to configure the debounce behavior.\n */\nexport interface DebounceOptions {\n  /**\n   * If `true`, trigger the function on the leading edge (immediately)\n   * instead of the trailing edge. Default is `false`.\n   */\n  leading?: boolean;\n}\n\n/**\n * The debounced procedure interface containing utility methods.\n */\nexport type DebouncedFunction<T extends (...args: any[]) => any> = {\n  (...args: Parameters<T>): void;\n  /** Cancels any pending execution. */\n  cancel: () => void;\n  /** Immediately executes any pending execution. */\n  flush: () => void;\n  /** Checks if there is a pending execution. */\n  isPending: () => boolean;\n};\n\n/**\n * Creates a debounced function that delays invoking `func` until after `wait`\n * milliseconds have elapsed since the last time the debounced function was invoked.\n *\n * @param func - The function to debounce.\n * @param wait - The number of milliseconds to delay.\n * @param options - Configuration options.\n */\nexport function debounce<T extends (...args: any[]) => any>(\n  func: T,\n  wait: number,\n  options: DebounceOptions = {}\n): DebouncedFunction<T> {\n  let timeoutId: ReturnType<typeof setTimeout> | null = null;\n  let lastArgs: Parameters<T> | null = null;\n  let lastThis: ThisParameterType<T> | null = null;\n\n  const { leading = false } = options;\n\n  function invoke(): void {\n    if (lastArgs !== null) {\n      func.apply(lastThis, lastArgs);\n      lastArgs = null;\n      lastThis = null;\n    }\n  }\n\n  function clearTimer(): void {\n    if (timeoutId !== null) {\n      clearTimeout(timeoutId);\n      timeoutId = null;\n    }\n  }\n\n  const debounced = function (this: ThisParameterType<T>, ...args: Parameters<T>): void {\n    lastArgs = args;\n    // eslint-disable-next-line @typescript-eslint/no-this-alias\n    lastThis = this;\n\n    const isFirstCall = timeoutId === null;\n\n    clearTimer();\n\n    if (leading && isFirstCall) {\n      invoke();\n    }\n\n    timeoutId = setTimeout(() => {\n      // If leading was triggered, do not trigger again on trailing edge\n      // unless it was invoked multiple times during the wait window.\n      if (!leading || lastArgs !== null) {\n        invoke();\n      }\n      clearTimer();\n    }, wait);\n  } as DebouncedFunction<T>;\n\n  debounced.cancel = (): void => {\n    clearTimer();\n    lastArgs = null;\n    lastThis = null;\n  };\n\n  debounced.flush = (): void => {\n    if (timeoutId !== null) {\n      invoke();\n      clearTimer();\n    }\n  };\n\n  debounced.isPending = (): boolean => {\n    return timeoutId !== null;\n  };\n\n  return debounced;\n}\n```\n\n---\n\n### Usage Examples\n\n#### 1. Basic Usage (e.g., Search Input)\n\n```typescript\nfunction search(query: string, page: number): void {\n  console.log(`Searching for \"${query}\" on page ${page}`);\n}\n\n// Inferred as: DebouncedFunction<(query: string, page: number) => void>\nconst debouncedSearch = debounce(search, 300);\n\n// Calls will only execute the last one after 300ms\ndebouncedSearch(\"type\", 1);\ndebouncedSearch(\"typesc\", 1);\ndebouncedSearch(\"typescript\", 1);\n\n// Canceling pending calls (e.g., when a component unmounts)\n// debouncedSearch.cancel();\n\n// Force executing immediately if pending\n// debouncedSearch.flush();\n```\n\n#### 2. React Hook Integration\n\n```tsx\nimport React, { useEffect, useMemo, useState } from \"react\";\n\nexport function SearchComponent() {\n  const [query, setQuery] = useState(\"\");\n\n  const debouncedFetch = useMemo(\n    () =>\n      debounce((searchTerm: string) => {\n        // API call here\n        console.log(\"Fetching API for:\", searchTerm);\n      }, 400),\n    []\n  );\n\n  useEffect(() => {\n    // Clean up timers on component unmount\n    return () => {\n      debouncedFetch.cancel();\n    };\n  }, [debouncedFetch]);\n\n  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {\n    const value = e.target.value;\n    setQuery(value);\n    debouncedFetch(value);\n  };\n\n  return <input type=\"text\" value={query} onChange={handleChange} />;\n}\n```\n\n### Key Technical Details\n\n- **Cross-Environment Timers**: Uses `ReturnType<typeof setTimeout>` instead of `number` or `NodeJS.Timeout`, making it compatible with both Node.js and the Browser.\n- **Strict Parameter Preservation**: Uses `Parameters<T>` to ensure full type-checking on arguments passed to the debounced function.\n- **Context Binding**: Preserves `this` using `ThisParameterType<T>` for classes or objects.",
+      "mediaType": "code",
+      "aiToolName": "Gemini Code Architect"
+    },
+    {
+      "id": "hist_1791727239701",
+      "userId": "usr-guest",
+      "requestId": "req_chat_1791727184421_b57vh",
+      "capability": "chat",
+      "prompt": "Hello, test message",
+      "status": "completed",
+      "createdAt": "2026-10-11T14:00:39.701Z",
+      "resultText": "Loud and clear! Hello there. \n\nI'm OTHERWISE AI, ready whenever you are. What are we working on today?",
+      "mediaType": "text",
+      "aiToolName": "gemini-3.8-flash"
+    },
+    {
+      "id": "hist_1791727206118",
+      "userId": "usr-guest",
+      "requestId": "req_chat_1791727201169_5au48",
+      "capability": "chat",
+      "prompt": "Hi",
+      "status": "completed",
+      "createdAt": "2026-10-11T14:00:06.118Z",
+      "resultText": "Hello! Good to connect with you. What’s on your mind today?",
+      "mediaType": "text",
+      "aiToolName": "gemini-3.8-flash"
+    },
+    {
+      "id": "hist_1791346952243",
+      "userId": "usr-guest",
+      "requestId": "req_write_1791346951284_abbuy",
+      "capability": "write",
+      "prompt": "Write a 1-sentence motivation",
+      "status": "completed",
+      "createdAt": "2026-10-07T04:22:32.243Z",
+      "resultText": "Your potential is an untapped reservoir, but it only yields results when you stop waiting for the perfect moment and start forging it.",
+      "mediaType": "text",
+      "aiToolName": "Gemini 3.1 Writing Engine"
+    },
+    {
+      "id": "hist_1791346948168",
+      "userId": "usr-guest",
+      "requestId": "req_chat_1791346947054_zwrh0",
+      "capability": "chat",
+      "prompt": "Testing updated Gemini models",
+      "status": "completed",
+      "createdAt": "2026-10-07T04:22:28.168Z",
+      "resultText": "Hello! I’m glad you’re here. It’s always a good time to see what these models can do. \n\nI’m ready when you are—what should we test out today? Whether it's complex reasoning, creative writing, a bit of coding, or just a good conversation, I'm all ears.",
+      "mediaType": "text",
+      "aiToolName": "gemini-3.1-flash-lite"
+    },
+    {
+      "id": "hist_1791346877025",
+      "userId": "usr-guest",
+      "requestId": "req_chat_1791346874546_44a0w",
+      "capability": "chat",
+      "prompt": "A spider man",
+      "status": "completed",
+      "createdAt": "2026-10-07T04:21:17.025Z",
+      "resultText": "Whether you’re talking about Peter Parker, Miles Morales, or any of the hundreds of variants swinging through the multiverse, Spider-Man is arguably the most human of all the major superheroes. \n\nWhat is it about him that draws you in? Is it the classic \"with great power comes great responsibility\" weight he carries, the witty banter he uses to hide his nerves, or just the pure, kinetic joy of seeing someone swing through the New York City skyline? \n\nAre you looking for a recommendation for a comic run, wanting to debate which movie version is best, or maybe looking for help writing a story about a wall-crawler of your own? I’m all ears.",
+      "mediaType": "text",
+      "aiToolName": "gemini-3.1-flash-lite"
+    },
+    {
+      "id": "hist_1791346677515",
+      "userId": "usr-guest",
+      "requestId": "req_code_1791346674601_cm0t3",
+      "capability": "code",
+      "prompt": "Write a TypeScript function to reverse a string",
+      "status": "completed",
+      "createdAt": "2026-10-07T04:17:57.515Z",
+      "resultText": "To reverse a string in TypeScript, the most robust approach is to convert the string into an array of characters, reverse the array, and join it back together.\n\n### The Implementation\n\n```typescript\n/**\n * Reverses a given string.\n * Uses the spread operator to correctly handle Unicode characters (emojis, etc).\n */\nexport const reverseString = (str: string): string => {\n  if (!str) return str;\n  \n  // Using the spread operator [...] handles surrogate pairs (emojis) \n  // better than .split('')\n  return [...str].reverse().join('');\n};\n\n// --- Examples ---\nconsole.log(reverseString(\"hello\"));    // \"olleh\"\nconsole.log(reverseString(\"TypeScript\")); // \"tpircSepyT\"\nconsole.log(reverseString(\"🚀hi\"));      // \"ih🚀\"\n```\n\n### Why this approach?\n\n1.  **Unicode Support:** Using `[...str]` (the spread operator) is safer than `str.split('')`. The `split` method can break multi-byte characters (like emojis or complex scripts) because it splits by UTF-16 code units. The spread operator iterates by code points, ensuring characters like `🚀` remain intact.\n2.  **Type Safety:** The function explicitly defines the input as `string` and the return type as `string`, preventing runtime errors.\n3.  **Immutability:** This approach does not mutate the original string (which is impossible in JS/TS anyway) and creates a clean, new string.\n4.  **Edge Case Handling:** The `if (!str)` check handles empty strings or `null`/`undefined` (if strict null checks are off) gracefully.\n\n### Performance Note\nFor extremely large strings (megabytes in size), creating an array can be memory-intensive. However, for standard UI development and general-purpose programming, this approach is the industry standard for readability and correctness.",
+      "mediaType": "code",
+      "aiToolName": "Gemini 3.1 Code Architect"
+    },
+    {
+      "id": "hist_1791346674174",
+      "userId": "usr-guest",
+      "requestId": "req_write_1791346667637_ge7oa",
+      "capability": "write",
+      "prompt": "Write a short poetic quote about stars",
+      "status": "completed",
+      "createdAt": "2026-10-07T04:17:54.174Z",
+      "resultText": "They are the silver stitches in the velvet shroud of night, cold lanterns lit by the ghosts of dead fires, whispering of ancient light that refuses to go dark.",
+      "mediaType": "text",
+      "aiToolName": "Gemini 3.1 Writing Engine"
+    },
+    {
+      "id": "hist_1791346664166",
+      "userId": "usr-guest",
+      "requestId": "req_chat_1791346663028_3zsey",
+      "capability": "chat",
+      "prompt": "Hello OTHERWISE, test chat AI service",
+      "status": "completed",
+      "createdAt": "2026-10-07T04:17:44.166Z",
+      "resultText": "Hello! Test successful. I’m online, warm, and ready to help. What’s on your mind today?",
+      "mediaType": "text",
+      "aiToolName": "gemini-3.1-flash-lite"
+    },
+    {
+      "id": "hist_1791346621854",
+      "userId": "usr-guest",
+      "requestId": "req_chat_1791346621411_9d5mp",
+      "capability": "chat",
+      "prompt": "Hello, test chat AI service",
+      "status": "failed",
+      "createdAt": "2026-10-07T04:17:01.854Z",
+      "errorDetails": {
+        "message": "All chat models failed to produce a response",
+        "providerRequired": "Google AI Studio",
+        "modelRequired": "gemini-3.1-flash",
+        "endpoint": "/api/ai/chat",
+        "envVarRequired": "GEMINI_API_KEY"
+      },
+      "aiToolName": "Gemini 3.1 Flash"
+    }
+  ],
+  "cards": {
+    "card_1791346691320_55w2": {
+      "id": "card_1791346691320_55w2",
+      "userId": "usr-david",
+      "requestId": "req_video_test_123",
+      "creator": {
+        "id": "usr-david",
+        "name": "David Bodunde",
+        "handle": "@davidbodunde"
+      },
+      "title": "Cyberpunk Rain City",
+      "description": "Google Veo 2.0 cinematic sequence",
+      "aiTool": "Google Veo 2.0",
+      "capability": "video",
+      "mediaType": "video",
+      "createdAt": "2026-10-07T04:18:11.320Z"
+    }
+  },
+  "posts": [
+    {
+      "id": "post_1791346687236_yh0e",
+      "userId": "usr-david",
+      "author": {
+        "id": "usr-david",
+        "name": "David Bodunde",
+        "handle": "@davidbodunde",
+        "avatarUrl": ""
+      },
+      "content": "Excited to launch the new OTHERWISE AI Community feed!",
+      "mediaType": "none",
+      "aiToolTag": "OTHERWISE AI",
+      "reactions": {
+        "like": 0,
+        "sparkle": 0,
+        "fire": 0,
+        "mindblown": 0
+      },
+      "commentsCount": 0,
+      "createdAt": "2026-10-07T04:18:07.236Z"
+    },
+    {
+      "id": "post-init-1",
+      "userId": "usr-david",
+      "author": {
+        "id": "usr-david",
+        "name": "David Bodunde",
+        "handle": "@davidbodunde"
+      },
+      "content": "Welcome to the official OTHERWISE Community! Share your AI-created music, cinematic Veo videos, generative art, and alternate timeline cards right here.",
+      "mediaType": "none",
+      "aiToolTag": "OTHERWISE AI",
+      "reactions": {
+        "like": 23,
+        "sparkle": 13,
+        "fire": 19,
+        "mindblown": 9
+      },
+      "reactionsMap": {
+        "like": {
+          "usr-maya": true
+        },
+        "fire": {
+          "usr-alex": true,
+          "usr-david": true
+        },
+        "sparkle": {
+          "usr-david": true
+        }
+      },
+      "commentsCount": 2,
+      "createdAt": "2026-10-07T01:16:57.919Z"
+    },
+    {
+      "id": "post-init-2",
+      "userId": "usr-maya",
+      "author": {
+        "id": "usr-maya",
+        "name": "Maya Lin",
+        "handle": "@mayalin_art"
+      },
+      "content": "Exploring alternate timeline architecture and generative storytelling in OTHERWISE!",
+      "mediaType": "none",
+      "aiToolTag": "OTHERWISE Studio",
+      "reactions": {
+        "like": 41,
+        "sparkle": 28,
+        "fire": 35,
+        "mindblown": 19
+      },
+      "commentsCount": 1,
+      "createdAt": "2026-10-07T03:16:57.919Z"
+    }
+  ],
+  "comments": [
+    {
+      "id": "cm-1",
+      "postId": "post-init-1",
+      "userId": "usr-maya",
+      "author": {
+        "id": "usr-maya",
+        "name": "Maya Lin",
+        "handle": "@mayalin_art"
+      },
+      "content": "Super excited for the new Google Lyria 3.5 song generation integration!",
+      "createdAt": "2026-10-07T02:16:57.919Z"
+    },
+    {
+      "id": "cm-2",
+      "postId": "post-init-1",
+      "userId": "usr-alex",
+      "author": {
+        "id": "usr-alex",
+        "name": "Alex Vance",
+        "handle": "@vance_code"
+      },
+      "content": "The 3D procedural viewer and timeline branching are incredible.",
+      "createdAt": "2026-10-07T03:16:57.919Z"
+    }
+  ],
+  "follows": [
+    {
+      "followerId": "usr-david",
+      "followingId": "usr-maya",
+      "createdAt": "2026-10-07T04:16:57.919Z"
+    },
+    {
+      "followerId": "usr-david",
+      "followingId": "usr-alex",
+      "createdAt": "2026-10-07T04:16:57.919Z"
+    }
+  ],
+  "reports": [],
+  "blocks": [],
+  "directConversations": [
+    {
+      "id": "conv_dm_1",
+      "participants": [
+        "usr-david",
+        "usr-maya"
+      ],
+      "updatedAt": "2026-10-14T19:17:11.585Z"
+    },
+    {
+      "id": "conv_dm_2",
+      "participants": [
+        "usr-david",
+        "usr-alex"
+      ],
+      "updatedAt": "2026-10-11T11:59:34.243Z"
+    }
+  ],
+  "directMessages": [
+    {
+      "id": "dm_msg_1",
+      "conversationId": "conv_dm_1",
+      "senderId": "usr-maya",
+      "text": "Hey David! Loved your latest Community update about OTHERWISE AI.",
+      "createdAt": "2026-10-11T13:19:34.243Z",
+      "status": "read"
+    },
+    {
+      "id": "dm_msg_2",
+      "conversationId": "conv_dm_1",
+      "senderId": "usr-david",
+      "text": "Thanks Maya! The new private messaging and social feed are working great.",
+      "createdAt": "2026-10-11T13:29:34.243Z",
+      "status": "delivered"
+    },
+    {
+      "id": "dm_msg_3",
+      "conversationId": "conv_dm_2",
+      "senderId": "usr-alex",
+      "text": "Hey, let me know if you need help testing the new Chat AI model fallback chain.",
+      "createdAt": "2026-10-11T11:59:34.243Z",
+      "status": "read"
+    }
+  ],
+  "tasks": {
+    "task_song_1792003692106_rxsw": {
+      "id": "task_song_1792003692106_rxsw",
+      "type": "song",
+      "provider": "Suno v3.5 / Google Lyria",
+      "prompt": "A ninja song",
+      "status": "failed",
+      "progress": 100,
+      "stageMessage": "Server-side secret GLORIOUS_LION (ElevenLabs API key) is missing or not configured.",
+      "createdAt": "2026-10-14T18:48:12.106Z",
+      "updatedAt": "2026-10-14T18:48:18.550Z",
+      "params": {
+        "prompt": "A ninja song",
+        "bpm": 120,
+        "vocalType": "vocal",
+        "duration": 30
+      },
+      "error": "Server-side secret GLORIOUS_LION (ElevenLabs API key) is missing or not configured.",
+      "errorDetails": {
+        "code": 429,
+        "provider": "Suno v3.5 / Google Lyria",
+        "requiresBilling": true
+      },
+      "result": {
+        "title": "Shadow Strike",
+        "genre": "Cinematic Hip-Hop",
+        "mood": "Mysterious and Intense",
+        "bpm": 120,
+        "duration": 30,
+        "vocalStyle": "Sharp, rhythmic rapping with whispered backing vocals",
+        "vocalType": "vocal",
+        "lyrics": [
+          {
+            "section": "Verse 1",
+            "lines": [
+              "Moonlight fades behind the temple wall",
+              "Silent steps before the petals fall",
+              "Blade of steel reflects the midnight sky",
+              "I am the ghost that passes by"
+            ]
+          },
+          {
+            "section": "Chorus",
+            "lines": [
+              "Shadow strike, move without a sound",
+              "Vanishing before I hit the ground",
+              "Deep in the dark where the secrets hide",
+              "Nowhere to run, nowhere to bide"
+            ]
+          },
+          {
+            "section": "Verse 2",
+            "lines": [
+              "Smoke clears out, the target is gone",
+              "Fading away at the break of dawn",
+              "Iron discipline, heart of cold ice",
+              "Paying the debt, the final price"
+            ]
+          },
+          {
+            "section": "Outro",
+            "lines": [
+              "Lost in the mist",
+              "Nothing remains"
+            ]
+          }
+        ],
+        "instruments": [
+          "Shakuhachi flute",
+          "Heavy 808 bass",
+          "Trap hi-hats",
+          "Koto strings"
+        ],
+        "musicGenerationPrompt": "A ninja song",
+        "coverArtConcept": "Album artwork for \"Shadow Strike\": Cinematic Hip-Hop aesthetic",
+        "provider": "ElevenLabs (GLORIOUS_LION)",
+        "error": "Server-side secret GLORIOUS_LION (ElevenLabs API key) is missing or not configured."
+      }
+    }
+  },
+  "apiKeys": {}
+}

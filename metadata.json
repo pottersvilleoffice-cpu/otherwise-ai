@@ -1,0 +1,7 @@
+{
+  "name": "OTHERWISE",
+  "description": "One AI. Every possibility. An all-in-one platform for creative, educational, development, 3D, and alternate-life exploration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

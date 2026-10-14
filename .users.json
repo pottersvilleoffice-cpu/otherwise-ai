@@ -1,0 +1,28 @@
+[
+  {
+    "id": "usr_demo_pottersville",
+    "name": "Alex Mercer",
+    "email": "alex@otherwise.ai",
+    "passwordHash": "b3e038e76567c2b84c471125b39d1de75a4403480da874f17e46e31dd05290554bdc959522701d904d47ee116a8aba89b32f3a05454031a1680509b4d2758054",
+    "salt": "c876d3c4dc24288f84e09e39b37b02b5",
+    "createdAt": "2026-10-07T02:13:17.295Z",
+    "bio": "Curious creator exploring alternate timelines, generative music, and 3D worlds.",
+    "preferences": {
+      "theme": "cinematic",
+      "notifications": true
+    }
+  },
+  {
+    "id": "usr_1791339205903_bc89099c",
+    "name": "Elena Vance",
+    "email": "elena@test.com",
+    "passwordHash": "d8e22d46966cb83feaba86d943315081c73660ffc557d8cfbadceea7868d4faaaa6e34cfb43ff25adaaa407fcdf4e3cb710461de36c048d697742842e2c98f15",
+    "salt": "69d476dd13ab5a335cdb42891c214d1d",
+    "createdAt": "2026-10-07T02:13:25.903Z",
+    "bio": "Explorer of creative possibilities.",
+    "preferences": {
+      "theme": "cinematic",
+      "notifications": true
+    }
+  }
+]
